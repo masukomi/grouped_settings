@@ -1,0 +1,81 @@
+# Grouped Settings Plugin
+
+A port of [Alex Wayne's Settings plugin](https://github.com/Squeegy/rails-settings) that 
+adds additional support for groups of settings.
+
+Unfortunately this port was made back in 2006 and still needs to be merged in with the 
+current version of Settings.
+
+Settings is a plugin that makes managing a table of global and grouped key, value 
+pairs easy. Think of it like a global Hash stored in you database. 
+Use it to keep track of any global setting that you dont want
+to hard code into your rails app.  You can store any kind of object.  Strings, numbers,
+arrays, or any object.
+
+## Setup
+
+You must create the table used by the Settings model.  Simply run this command:
+  ruby script/generate settings_migration
+
+Now just put that migration in the database with:
+  rake migrate
+
+
+## Usage
+
+Global settings are the simplest: 
+To set one you just say:  
+	Settings.set('some_key', some_value)
+It will be automatically saved. 
+To retreive it just say:
+	Settings.get('some_key')
+and it will return the string, array, number or whatever kind of 
+object some_value was. 
+
+That's it for global ones. 
+Now lets say you want to group some settings. This is useful 
+when multilpe groups of things have the same variable name. 
+
+	Settings.set('some_key', some_value, 'name_to_group_them_under')
+
+Just like before it's automatically saved but in order to retreive it 
+you'll need to specify the appropriate group name:
+
+	Settings.get('some_key', 'name_to_group_them_under')
+
+If you want to find all the settings in a particular group you say: 
+
+	settings_group = SettingsGroup.find_by_name('name_of_group')
+
+after that you can request variables directly from the group: 
+
+	my_var = settings_group.get('some_key')
+
+you can also set variables directly in the group: 
+
+	settings_group.set('another_key', 'another_value') 
+
+that would result in a new setting (or overwriting an old one) that 
+was tied specifically to that group.
+
+
+To change a setting just set it again. 
+
+Default Globals: 
+
+Set defaults for certain settings of your app.  
+This will cause the defined settings to return with the
+Specified value even if they are not in the database.  
+Here is what you insert into your environment.rb
+
+  module SettingsDefaults
+    DEFAULTS = {
+      :setting_one => 'footastic',
+      :setting_two => 123.321
+    }
+  end
+  
+
+NOTE: the server must be restarted in order to see new default settings.
+
+All there is to it!. Enjoy!
